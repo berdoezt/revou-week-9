@@ -2,6 +2,7 @@ const express = require('express')
 const mysql = require('mysql2')
 const bodyParser = require('body-parser')
 const redis = require('ioredis')
+require('dotenv').config()
 
 const app = express()
 
@@ -20,16 +21,16 @@ const commonResponse = function (data, error) {
 }
 
 const redisCon = new redis({
-    host: 'localhost',
-    port: 6379
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT
 })
 
 const mysqlCon = mysql.createConnection({
-    host: 'localhost',
-    port: 3306,
-    user: 'root',
-    password: '1234',
-    database: 'revou'
+    host: process.env.MYSQL_HOST,
+    port: process.env.MYSQL_PORT,
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASS,
+    database: process.env.MYSQL_DB
 })
 
 const query = (query, values) => {
