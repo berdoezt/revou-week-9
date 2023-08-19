@@ -169,6 +169,6 @@ app.delete('/orders/:id', async (request, response) => {
 })
 
 
-app.listen(3000, () => {
-    console.log("running in 3000")
+app.listen(process.env.APP_PORT, () => {
+    console.log("running in " + process.env.APP_PORT)
 })
