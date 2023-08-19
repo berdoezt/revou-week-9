@@ -22,7 +22,9 @@ const commonResponse = function (data, error) {
 
 const redisCon = new redis({
     host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT
+    port: process.env.REDIS_PORT,
+    username: process.env.REDIS_USERNAME,
+    password: process.env.REDIS_PASSWORD
 })
 
 const mysqlCon = mysql.createConnection({
@@ -54,7 +56,7 @@ mysqlCon.connect((err) => {
 app.use(bodyParser.json())
 
 app.get('/persons', (request, response) => {
-    mysqlCon.query("select * from revou.person", (err, result, fields) => {
+    mysqlCon.query("select * from person", (err, result, fields) => {
         if (err) {
             console.error(err)
             response.status(500).json(commonResponse(null, "server error"))
@@ -87,8 +89,8 @@ app.get('/persons/:id', async (request, response) => {
                 p.department,
                 sum(o.price) as amount
             from
-                revou.person as p
-                left join revou.order as o on p.id = o.person_id
+                person as p
+                left join orders as o on p.id = o.person_id
             where
                 p.id = ?
             group by
@@ -117,7 +119,7 @@ app.post('/orders', async (request, response) => {
         const body = request.body
 
         const dbData = await query(`insert into
-            revou.order (person_id, price, product)
+            orders (person_id, price, product)
         values
         (?, ?, ?)`, [body.user_id, body.price, body.product])
 
@@ -141,7 +143,7 @@ app.post('/orders', async (request, response) => {
 app.delete('/orders/:id', async (request, response) => {
     try {
         const id = request.params.id
-        const data = await query("select person_id from revou.order where id = ?", id)
+        const data = await query("select person_id from orders where id = ?", id)
         if (Object.keys(data).length === 0) {
             response.status(404).json(commonResponse(null, "data not found"))
             response.end()
@@ -149,7 +151,7 @@ app.delete('/orders/:id', async (request, response) => {
         }
         const personId = data[0].person_id
         const userKey = "user:" + personId
-        await query("delete from revou.order where id = ?", id)
+        await query("delete from orders where id = ?", id)
         await redisCon.del(userKey)
 
         response.status(200).json(commonResponse({
