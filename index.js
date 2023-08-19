@@ -169,6 +169,6 @@ app.delete('/orders/:id', async (request, response) => {
 })
 
 
-app.listen(process.env.APP_PORT, () => {
-    console.log("running in " + process.env.APP_PORT)
+app.listen(process.env.PORT, () => {
+    console.log("running in " + process.env.PORT)
 })
